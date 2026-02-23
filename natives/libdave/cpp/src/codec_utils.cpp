@@ -331,13 +331,21 @@ bool ProcessFrameAv1(OutboundFrameProcessor& processor, ArrayView<const uint8_t>
             // Read payload size
             const uint8_t* start = frame.data() + i;
             const uint8_t* ptr = start;
-            obuPayloadSize = ReadLeb128(ptr, frame.end());
+            uint64_t obuPayloadSize64 = ReadLeb128(ptr, frame.end());
             if (!ptr) {
                 // Malformed frame
                 assert(false && "Malformed AV1 frame: invalid LEB128 size");
                 DISCORD_LOG(LS_WARNING) << "Malformed AV1 frame: invalid LEB128 size";
                 return false;
             }
+            if (obuPayloadSize64 > std::numeric_limits<size_t>::max()) {
+                // Malformed frame
+                assert(false && "Malformed AV1 frame: LEB128 size exceeds platform size_t");
+                DISCORD_LOG(LS_WARNING)
+                  << "Malformed AV1 frame: LEB128 size exceeds platform size_t";
+                return false;
+            }
+            obuPayloadSize = static_cast<size_t>(obuPayloadSize64);
             i += ptr - start;
         }
         else {

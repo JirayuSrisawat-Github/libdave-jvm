@@ -693,6 +693,9 @@ add_library(pki ${PKI_SOURCES})
 target_link_libraries(pki crypto)
 target_compile_options(pki PRIVATE ${PKI_CXX_FLAGS})
 target_compile_definitions(pki PRIVATE -DBORINGSSL_IMPLEMENTATION)
+if(CLANG)
+  target_compile_options(pki PRIVATE -Wno-deprecated-declarations)
+endif()
 if(MSVC)
   # libpki has a DLL C++ interface, where this warning is expected:
   set(PKI_MSVC_DISABLED_WARNINGS_LIST

@@ -71,15 +71,19 @@ uint8_t DeserializeUnencryptedRanges(const uint8_t*& readAt,
     auto start = readAt;
     auto end = readAt + bufferSize;
     while (readAt < end) {
-        size_t offset = ReadLeb128(readAt, end);
-        if (readAt == nullptr) {
+        uint64_t offsetRaw = ReadLeb128(readAt, end);
+        if (readAt == nullptr || offsetRaw > std::numeric_limits<size_t>::max()) {
+            readAt = nullptr;
             break;
         }
+        size_t offset = static_cast<size_t>(offsetRaw);
 
-        size_t size = ReadLeb128(readAt, end);
-        if (readAt == nullptr) {
+        uint64_t sizeRaw = ReadLeb128(readAt, end);
+        if (readAt == nullptr || sizeRaw > std::numeric_limits<size_t>::max()) {
+            readAt = nullptr;
             break;
         }
+        size_t size = static_cast<size_t>(sizeRaw);
         unencryptedRanges.push_back({offset, size});
     }
 

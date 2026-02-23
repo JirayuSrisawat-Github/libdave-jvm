@@ -49,6 +49,16 @@ else()
   message(WARNING "Building with unknown compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
+# Keep LLVM LTO object archives consistent on Linux by using LLVM binutils.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  find_program(LLVM_AR NAMES llvm-ar-19 llvm-ar)
+  find_program(LLVM_RANLIB NAMES llvm-ranlib-19 llvm-ranlib)
+  if(LLVM_AR AND LLVM_RANLIB)
+    set(CMAKE_AR "${LLVM_AR}" CACHE FILEPATH "Archiver" FORCE)
+    set(CMAKE_RANLIB "${LLVM_RANLIB}" CACHE FILEPATH "Ranlib" FORCE)
+  endif()
+endif()
+
 # split debug symbols into a separate file
 if(APPLE)
   find_program(DSYMUTIL_PROGRAM dsymutil)
