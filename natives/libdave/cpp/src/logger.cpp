@@ -37,13 +37,14 @@ LogStreamer::~LogStreamer()
     switch (severity_) {
     case LS_VERBOSE:
     case LS_INFO:
+        break;
     case LS_WARNING:
     case LS_ERROR: {
         const char* file = file_;
         if (auto separator = strrchr(file, '/')) {
             file = separator + 1;
         }
-        std::cout << "(" << file << ":" << line_ << ") " << logLine << std::endl;
+        std::cerr << "(" << file << ":" << line_ << ") " << logLine << std::endl;
         break;
     }
     case LS_NONE:
